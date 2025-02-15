@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <link rel="stylesheet" href="styles.css.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #72edf2 10%, #5151e5 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            color: white;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .weather-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            width: 350px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .weather-container:hover {
+            transform: scale(1.02);
+        }
+        #search-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #city-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            font-family: 'Poppins', sans-serif;
+        }
+        #search-btn {
+            padding: 10px 15px;
+            background-color: #4a4ae6;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        #search-btn:hover {
+            background-color: #6666ff;
+        }
+        #weather-info {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        #weather-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            animation: pulse 2s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+        .weather-detail {
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weather Wise</h1> <!-- Added new heading -->
+    
+
+    <div class="weather-container">
+        <div id="search-container">
+            <input type="text" id="city-input" placeholder="Enter city name">
+            <button id="search-btn">Search</button>
+        </div>
+        <img id="weather-icon" src="" alt="Weather Icon" style="display:none;">
+        <div id="weather-info">
+            <h2 id="city-name">Weather Information</h2>
+            <p id="temperature" class="weather-detail">Temperature: --</p>
+            <p id="description" class="weather-detail">Description: --</p>
+            <p id="humidity" class="weather-detail">Humidity: --</p>
+            <p id="wind" class="weather-detail">Wind Speed: --</p>
+        </div>
+    </div>
+
+    <script>
+        const cityInput = document.getElementById('city-input');
+        const searchBtn = document.getElementById('search-btn');
+        const weatherInfo = document.getElementById('weather-info');
+        const weatherIcon = document.getElementById('weather-icon');
+        const cityName = document.getElementById('city-name');
+        const temperatureEl = document.getElementById('temperature');
+        const descriptionEl = document.getElementById('description');
+        const humidityEl = document.getElementById('humidity');
+        const windEl = document.getElementById('wind');
+
+        searchBtn.addEventListener('click', () => {
+            const city = cityInput.value;
+            if (city) {
+                fetchWeather(city);
+            }
+        });
+
+        async function fetchWeather(city) {
+            try {
+                const response = await fetch(`http://api.weatherapi.com/v1/current.json?key=fa40e753ac7149c8abc124525252301&q=${city}&aqi=yes`);
+                const data = await response.json();
+
+                // Update weather information
+                cityName.textContent = data.location.name;
+                temperatureEl.textContent = `Temperature: ${data.current.temp_c}°C`;
+                descriptionEl.textContent = `Condition: ${data.current.condition.text}`;
+                humidityEl.textContent = `Humidity: ${data.current.humidity}%`;
+                windEl.textContent = `Wind Speed: ${data.current.wind_kph} km/h`;
+
+                // Update weather icon
+                weatherIcon.src = `https:${data.current.condition.icon}`;
+                weatherIcon.style.display = 'block';
+
+                // Animate weather info
+                weatherInfo.style.opacity = '1';
+                weatherInfo.style.transform = 'translateY(0)';
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+                cityName.textContent = 'City not found';
+                weatherInfo.style.opacity = '0';
+                weatherIcon.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
